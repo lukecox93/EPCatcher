@@ -1,8 +1,12 @@
+import datetime
 import json
 import requests
 import pandas as pd
 import time
 import random
+from dateutil import parser
+import pytz
+
 
 all_races_url = "https://apisds.paddypower.com/sdspp/content-managed-page/v7"
 
@@ -39,7 +43,9 @@ all_races = json.loads(races.text)
 
 for race in all_races['attachments']['races']:
     position = all_races['attachments']['races'][race]
-    all_race_info.append([position['raceId'], position['venue'], position['startTime']])
+    date = parser.isoparse(position['startTime'])
+    if datetime.datetime.now(pytz.timezone('UTC')) < date:
+        all_race_info.append([position['raceId'], position['venue'], date])
 
 race_url = "https://apisds.paddypower.com/sdspp/racing-page/v7"
 
@@ -111,8 +117,6 @@ for identifier in all_race_info:
                         horses.append([name, int(number), 0])
 
     df = pd.DataFrame(data=horses, columns=['Name', 'Number', 'Paddy Power']).sort_values(by=['Paddy Power'])
-
-    print(identifier[1], '-', identifier[2])
-    #TODO - clean up date format
+    print(identifier[1], '-', identifier[2].strftime('%c'))
     print(df)
     time.sleep(random.randint(10, 25) / 10)
