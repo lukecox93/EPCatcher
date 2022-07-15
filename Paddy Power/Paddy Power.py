@@ -35,23 +35,18 @@ with open('ppData.json', encoding='utf8') as f:
     data = json.load(f)
 
 horses = []
-indices = []
-count = 1
 
-for market in data['markets']:
-    if data['markets'][market]['marketType'] == 'WIN':
-        for runner in data['markets'][market]['runners']:
-            try:
+for race in data['markets']:
+    if data['markets'][race]['marketType'] == 'WIN':
+        for runner in data['markets'][race]['runners']:
+            if runner['runnerStatus'] == 'ACTIVE' and 'Unnamed' and 'Favourite' not in runner['runnerName']:
                 name = runner['runnerName']
                 odds = str(runner['winRunnerOdds']['trueOdds']['decimalOdds']['decimalOdds'])
-                horses.append([name, int(odds)])
-                indices.append(count)
-                count += 1
-            except:
-                pass
-        break
+                number = runner['sortPriority']
+                horses.append([name, int(number), float(odds)])
 
-df = pd.DataFrame(data=horses, index=indices, columns=['Name', 'Paddy Power']).sort_values(by=['Paddy Power'])
+
+df = pd.DataFrame(data=horses, columns=['Name', 'Number', 'Paddy Power']).sort_values(by=['Paddy Power'])
 
 print(df)
 
