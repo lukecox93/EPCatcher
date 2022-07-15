@@ -33,16 +33,18 @@ races_headers = {
 
 races = requests.request('GET', all_races_url, data=races_payload, headers=races_headers, params=races_query_string)
 
-race_ids = []
+all_race_info = []
 
 all_races = json.loads(races.text)
 
-for race in all_races['attachments']['markets']:
-    race_ids.append(all_races['attachments']['markets'][race]['raceId'])
+for race in all_races['attachments']['races']:
+    position = all_races['attachments']['races'][race]
+    all_race_info.append([position['raceId'], position['venue'], position['startTime']])
 
 race_url = "https://apisds.paddypower.com/sdspp/racing-page/v7"
 
-for race_id in race_ids:
+for identifier in all_race_info:
+    race_id = identifier[0]
     querystring = {"_ak": "vsd0Rm5ph2sS2uaK", "betexRegion": "GBR", "capiJurisdiction": "intl", "currencyCode": "GBP",
                    "eventTypeId": "7", "exchangeLocale": "en_GB", "includePrices": "true",
                    "includeRaceTimeform": "true",
@@ -110,5 +112,7 @@ for race_id in race_ids:
 
     df = pd.DataFrame(data=horses, columns=['Name', 'Number', 'Paddy Power']).sort_values(by=['Paddy Power'])
 
+    print(identifier[1], '-', identifier[2])
+    #TODO - clean up date format
     print(df)
     time.sleep(random.randint(10, 25) / 10)
