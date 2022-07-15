@@ -4,7 +4,7 @@ import pandas as pd
 
 url = "https://apisds.paddypower.com/sdspp/racing-page/v7"
 
-race_id = '31589879.1453'
+race_id = '31589879.1418'
 
 querystring = {"_ak": "vsd0Rm5ph2sS2uaK", "betexRegion": "GBR", "capiJurisdiction": "intl", "currencyCode": "GBP",
                "eventTypeId": "7", "exchangeLocale": "en_GB", "includePrices": "true", "includeRaceTimeform": "true",
@@ -64,7 +64,7 @@ for race in data['markets']:
                 name = runner['runnerName']
                 odds = str(runner['winRunnerOdds']['trueOdds']['decimalOdds']['decimalOdds'])
                 number = runner['sortPriority']
-                horses.append([name, int(number), float(odds)])
+                horses.append([name, int(number), round(float(odds), 2)])
 
 df = pd.DataFrame(data=horses, columns=['Name', 'Number', 'Paddy Power']).sort_values(by=['Paddy Power'])
 
