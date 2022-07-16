@@ -6,6 +6,7 @@ import time
 import random
 from dateutil import parser
 import pytz
+from pytz import timezone
 
 
 all_races_url = "https://apisds.paddypower.com/sdspp/content-managed-page/v7"
@@ -43,7 +44,7 @@ all_races = json.loads(races.text)
 
 for race in all_races['attachments']['races']:
     position = all_races['attachments']['races'][race]
-    date = parser.isoparse(position['startTime'])
+    date = parser.isoparse(position['startTime']).astimezone(timezone('Europe/London'))
     if datetime.datetime.now(pytz.timezone('UTC')) < date:
         all_race_info.append([position['raceId'], position['venue'], date])
 
