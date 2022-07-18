@@ -32,6 +32,7 @@ def get_names():
         runner_data.append([horse['title'], horse['runnerNum'], horse['selections'][0]])
     return runner_data
 
+
 def get_horse_data(runner_data):
     prices = []
     for horse in runner_data:
@@ -65,12 +66,14 @@ headers = {
                   "British+Summer+Time)&version=6.18.0&isIABGlobal=false&hosts=&consentId=68089409&interactionCount=1"
                   "&landingPath=NotLandingPage&groups=C0001^%^3A1^%^2CC0003^%^3A1^%^2CC0002^%^3A1^%^2CC0004^%^3A1"
                   "&geolocation=^%^3B&AwaitingReconsent=false; _ga_DC69KVTC2E=GS1.1.1657881516.22.1.1657881528.48",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 "
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/103.0.0.0 "
                       "Safari/537.36 "
     }
 payload = ""
 racesForToday = "https://sports.williamhill.com/data/rmp01/api/desktop/horse-racing/en-gb/meetings/extra-places/today"
-racesForTomorrow = "https://sports.williamhill.com/data/rmp01/api/desktop/horse-racing/en-gb/meetings/extra-places/tomorrow"
+racesForTomorrow = "https://sports.williamhill.com/data/rmp01/api/desktop/horse-racing/en-gb/meetings/extra-places" \
+                   "/tomorrow "
 all_races = []
 
 with requests.Session() as s:
@@ -81,5 +84,6 @@ with requests.Session() as s:
         data = open_race_page(ext)
         runners = data['data']['raceCardData']['event']['numberOfRunners']
         names = get_names()
-        df = pd.DataFrame(data=get_horse_data(names), columns=[ext.split('/')[1], 'Number', 'William Hill']).sort_values(by=['William Hill'])
+        df = pd.DataFrame(data=get_horse_data(names), columns=[ext.split('/')[1], 'Number', 'William Hill']).\
+            sort_values(by=['William Hill'])
         print(df)
