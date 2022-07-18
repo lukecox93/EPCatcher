@@ -13,16 +13,16 @@ def open_url(url):
     return json.loads(response.text)
 
 
-def store_race_urls(races, all_races):
+def store_race_urls():
     for race in races['data']['regionCompetitions'][0]['competitions']:
         for x in race['events']:
             all_races.append(f'{x["id"]}/{x["slug"]}')
 
 
-def open_race_page(ext):
-    url = f'https://sports.williamhill.com/data/rmp01/api/desktop/horse-racing/en-gb/racecard/{ext}'
-    data = s.get(url)
-    data.raise_for_status()
+def open_race_page(extension):
+    url = f'https://sports.williamhill.com/data/rmp01/api/desktop/horse-racing/en-gb/racecard/{extension}'
+    site = s.get(url)
+    site.raise_for_status()
     return json.loads(data.text)
 
 
@@ -75,7 +75,7 @@ all_races = []
 
 with requests.Session() as s:
     races = open_url(racesForToday)
-    store_race_urls(races, all_races)
+    store_race_urls()
     s.headers.update(headers)
     for ext in all_races:
         data = open_race_page(ext)
