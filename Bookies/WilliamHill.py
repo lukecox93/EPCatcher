@@ -1,10 +1,7 @@
 import pandas as pd
 import requests
 import json
-
-
-def convert_to_decimal(num: float, den: float):
-    return round(num/den+1, 2)
+from main import *
 
 
 def open_url(url):
@@ -23,13 +20,13 @@ def open_race_page(extension):
     url = f'https://sports.williamhill.com/data/rmp01/api/desktop/horse-racing/en-gb/racecard/{extension}'
     site = s.get(url)
     site.raise_for_status()
-    return json.loads(data.text)
+    return json.loads(site.text)
 
 
 def get_names():
     runner_data = []
     for horse in data['data']['raceCardData']['marketCollections'][0]['raceCardTables'][0]['raceCardRows']:
-        runner_data.append([horse['title'], horse['runnerNum'], horse['selections'][0]])
+        add_names_and_prices(runner_data, horse['title'], horse['runnerNum'], horse['selections'][0])
     return runner_data
 
 
