@@ -1,7 +1,6 @@
 import pandas as pd
 import requests
 import json
-import pandas
 
 
 def convert_to_decimal(num: float, den: float):
@@ -25,6 +24,20 @@ def open_race_page(ext):
     data = s.get(url)
     data.raise_for_status()
     return json.loads(data.text)
+
+
+def get_names():
+    runner_data = []
+    for horse in data['data']['raceCardData']['marketCollections'][0]['raceCardTables'][0]['raceCardRows']:
+        runner_data.append([horse['title'], horse['runnerNum'], horse['selections'][0]])
+    return runner_data
+
+def get_horse_data(runner_data):
+    prices = []
+    for horse in runner_data:
+        runner = (data['data']['raceCardData']['selections'][horse[2]])
+        prices.append([horse[0], horse[1], convert_to_decimal(runner['priceNum'], runner['priceDen'])])
+    return prices
 
 
 headers = {
@@ -59,25 +72,14 @@ payload = ""
 racesForToday = "https://sports.williamhill.com/data/rmp01/api/desktop/horse-racing/en-gb/meetings/extra-places/today"
 racesForTomorrow = "https://sports.williamhill.com/data/rmp01/api/desktop/horse-racing/en-gb/meetings/extra-places/tomorrow"
 all_races = []
-races = open_url(racesForToday)
-store_race_urls(races, all_races)
-s = requests.Session()
-s.headers.update(headers)
 
-for ext in all_races:
-    data = open_race_page(ext)
-    prices = []
-    runners = data['data']['raceCardData']['event']['numberOfRunners']
-    count = 1
-    for runner in data['data']['raceCardData']['selections']:
-        if count <= runners:
-            runner = data['data']['raceCardData']['selections'][runner]
-            prices.append([count, convert_to_decimal(runner['priceNum'], runner['priceDen'])])
-            count += 1
-    df = pd.DataFrame(prices)
-    print(ext)
-    print(df)
-
-
-
-#TODO - To find names, go down this path - data.raceCardData.marketCollections[0].raceCardTables[0].raceCardRows
+with requests.Session() as s:
+    races = open_url(racesForToday)
+    store_race_urls(races, all_races)
+    s.headers.update(headers)
+    for ext in all_races:
+        data = open_race_page(ext)
+        runners = data['data']['raceCardData']['event']['numberOfRunners']
+        names = get_names()
+        df = pd.DataFrame(data=get_horse_data(names), columns=[ext.split('/')[1], 'Number', 'William Hill']).sort_values(by=['William Hill'])
+        print(df)
