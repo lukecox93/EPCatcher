@@ -1,7 +1,9 @@
 import pandas as pd
 import requests
 import json
-from main import *
+from main import convert_to_decimal, add_names_and_prices
+from sqlalchemy import create_engine
+import sqlite3
 
 
 def open_url(url):
@@ -10,31 +12,32 @@ def open_url(url):
     return json.loads(response.text)
 
 
-def store_race_urls():
+def store_race_urls(races):
     for race in races['data']['regionCompetitions'][0]['competitions']:
         for x in race['events']:
             all_races.append(f'{x["id"]}/{x["slug"]}')
 
 
-def open_race_page(extension):
+def open_race_page(extension, s):
     url = f'https://sports.williamhill.com/data/rmp01/api/desktop/horse-racing/en-gb/racecard/{extension}'
     site = s.get(url)
     site.raise_for_status()
     return json.loads(site.text)
 
 
-def get_names():
+def get_names(data):
     runner_data = []
     for horse in data['data']['raceCardData']['marketCollections'][0]['raceCardTables'][0]['raceCardRows']:
         add_names_and_prices(runner_data, horse['title'], horse['runnerNum'], horse['selections'][0])
     return runner_data
 
 
-def get_horse_data(runner_data):
+def get_horse_data(runner_data, data):
     prices = []
     for horse in runner_data:
         runner = (data['data']['raceCardData']['selections'][horse[2]])
-        prices.append([horse[0], horse[1], convert_to_decimal(runner['priceNum'], runner['priceDen'])])
+        if runner['priceNum'] != None:
+            prices.append([horse[0], horse[1], convert_to_decimal(runner['priceNum'], runner['priceDen'])])
     return prices
 
 
@@ -73,14 +76,27 @@ racesForTomorrow = "https://sports.williamhill.com/data/rmp01/api/desktop/horse-
                    "/tomorrow "
 all_races = []
 
-with requests.Session() as s:
+def get_races():
     races = open_url(racesForToday)
-    store_race_urls()
-    s.headers.update(headers)
-    for ext in all_races:
-        data = open_race_page(ext)
-        runners = data['data']['raceCardData']['event']['numberOfRunners']
-        names = get_names()
-        df = pd.DataFrame(data=get_horse_data(names), columns=[ext.split('/')[1], 'Number', 'William Hill']).\
-            sort_values(by=['William Hill'])
-        print(df)
+    store_race_urls(races)
+    print('working')
+
+def get_price_data():
+    get_races()
+    with requests.Session() as s:
+        s.headers.update(headers)
+        all_race_data = []
+        for ext in all_races:
+            data = open_race_page(ext, s)
+            runners = data['data']['raceCardData']['event']['numberOfRunners']
+            names = get_names(data)
+            df = pd.DataFrame(data=get_horse_data(names, data), columns=['Name', 'Number', 'William Hill']).\
+                sort_values(by=['William Hill'])
+            #df = pd.DataFrame(data=get_horse_data(names, data), columns=[ext.split('/')[1], 'Number', 'William Hill']).\
+                #sort_values(by=['William Hill'])
+            all_race_data.append(df)
+        print(all_race_data)
+    return all_race_data
+
+
+get_price_data()
