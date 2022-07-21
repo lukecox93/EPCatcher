@@ -1,7 +1,7 @@
 import requests
 import json
 import pandas as pd
-from main import *
+from functions import *
 
 racesForToday = "https://www.betfred.com/services/SportsBook/navigationlist"
 racesForTodayQuerystring = {"region":"440","language":"uk","type":"bonavigationlist","id":"254374.2","dataflags":"12","datasize":"8","cachebust":"1658160592143"}
@@ -30,6 +30,7 @@ all_races = []
 
 response = requests.request("GET", racesForToday, headers=headers, params=racesForTodayQuerystring)
 response.raise_for_status()
+print(response.text)
 races = json.loads(response.text)
 
 for race in races['Bonavigationnode']['marketgroups']:

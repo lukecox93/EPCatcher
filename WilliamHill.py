@@ -1,7 +1,7 @@
 import pandas as pd
 import requests
 import json
-from main import convert_to_decimal, add_names_and_prices
+from functions import convert_to_decimal, add_names_and_prices
 from sqlalchemy import create_engine
 import sqlite3
 
