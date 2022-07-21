@@ -21,11 +21,14 @@ class Bookmaker:
                                                                               self.all_race_query_string, self.headers)
             return 1
 
-    def add_new_horse_race(self, races_for_the_day: HorseRaces, location, time, runners):
-        races_for_the_day.add_race(HorseRace(location, time, runners))
+    def add_new_horse_race(self, races_for_the_day: HorseRaces, location, time):
+        races_for_the_day.add_race(HorseRace(location, time))
 
-    def add_new_horse(self, race: HorseRace, name, number, bookie, odds):
-        race.add_horses(Horse(name, number, bookie, odds))
+    def add_new_horse(self, race_name, name, number, odds):
+        today.get_race(race_name).add_horses(Horse(name, number, self.name, odds))
+
+    def update_horse_odds(self, race_name, name, odds):
+        today.get_race(race_name).get_horse(name).update_odds(self.name, odds)
 
 
 class Betfred(Bookmaker):
@@ -57,17 +60,27 @@ class Betfred(Bookmaker):
                 name = horse['name']
                 number = horse['competitornumber']
                 odds = functions.convert_to_decimal(horse['currentpriceup'], horse['currentpricedown'])
-                newHorse = Horse(name, number, self.name, odds)
-                if today.get_race(race_title).get_horse(name):
-                    today.get_race(race_title).get_horse(name).values().update_odds(self.name, odds)
+                if not today.get_race(race_title):
+                    self.add_new_horse_race(today, race_title.split(', ')[0], race_title.split(', ')[1])
+                if not today.get_race(race_title).get_horse(name):
+                    self.add_new_horse(race_title, name, number, odds)
                 else:
-                    today.get_race(race_title).add_horses(newHorse)
+                    self.update_horse_odds(race_title, name, odds)
+        for horse in today.get_race(race_title).get_horses().values():
+            print(f'{horse.get_name()}, {horse.get_odds()}')
 
+    def update_data(self, json_race_data, race_title):
+        for horse in json_race_data['Marketgroup']['markets'][0]['selections']:
+            if horse['is1stfavourite'] != 'true' and horse['is2ndfavourite'] != 'true' and horse[
+                'idfobolifestate'] != 'NR':
+                name = horse['name']
+                odds = functions.convert_to_decimal(horse['currentpriceup'], horse['currentpricedown'])
+                self.update_horse_odds(race_title, name, odds)
 
 # TODO - add functionality for super extra place races
 
 
-kmpton = HorseRace('Worcester', '16:30', 3)
+kmpton = HorseRace('Yarmouth', '16:52')
 today = HorseRaces()
 today.add_race(kmpton)
 

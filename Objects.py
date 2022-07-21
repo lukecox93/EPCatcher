@@ -25,12 +25,11 @@ class Horse:
 
 
 class HorseRace:
-    def __init__(self, location, time, runners: int):
+    def __init__(self, location, time):
         self.name = f'{location}, {time}'
         self.location = location
         self.time = time
         self.horses = {}
-        self.runners = runners
         self.bookies = []
         self.urls = {}
 
@@ -87,15 +86,18 @@ class HorseRaces:
         return self.races if self.races else None
 
     def get_race(self, race_title):
-        return self.races[race_title]
+        try:
+            return self.races[race_title]
+        except KeyError:
+            return False
 
 
 one = Horse('one', 1, 'William Hill', 2.0)
 two = Horse('two', 1, 'William Hill', 2.0)
 three = Horse('three', 1, 'William Hill', 2.0)
 
-kmpton = HorseRace('Kempton', '17:00', 3)
-kempton = HorseRace('Kempton', '17:01', 3)
+kmpton = HorseRace('Kempton', '17:00')
+kempton = HorseRace('Kempton', '17:01')
 
 kempton.add_horses(one, two, three)
 
@@ -105,6 +107,9 @@ today.add_race(kmpton)
 
 one.update_odds('Betfred', 3)
 one.update_odds('Betfred', 4)
+
+today.get_race('Kempton, 17:01').get_horse('one').update_odds('Betfred', 1)
+
 
 
 
