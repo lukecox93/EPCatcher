@@ -2,11 +2,10 @@ import WebBrowsing
 import requests
 import functions
 from Objects import Horse, HorseRace, HorseRaces
-import time
 
 
 class Bookmaker(object):
-    def __init__(self):
+    def __init__(self, today):
         self.name = str
         self.all_race_url = str
         self.all_race_query_string = None
@@ -15,6 +14,7 @@ class Bookmaker(object):
         self.headers = None
         self.race_url = None
         self.races = []
+        self.today = today
 
     def get_races_data(self):
         with requests.Session() as session:
@@ -27,15 +27,15 @@ class Bookmaker(object):
         races_for_the_day.add_race(HorseRace(location, time))
 
     def add_new_horse(self, race_name, name, number, odds):
-        today.get_race(race_name).add_horses(Horse(name, number, self.name, odds))
+        self.today.get_race(race_name).add_horses(Horse(name, number, self.name, odds))
 
     def update_horse_odds(self, race_name, name, odds):
-        today.get_horse(race_name, name).update_odds(self.name, odds)
+        self.today.get_horse(race_name, name).update_odds(self.name, odds)
 
 
 class Betfred(Bookmaker):
-    def __init__(self,):
-        super().__init__()
+    def __init__(self, today):
+        super().__init__(today)
         self.name = 'Betfred'
         self.all_race_url = "https://www.betfred.com/services/SportsBook/navigationlist"
         self.all_race_query_string = [{"region": "440", "language": "uk", "type": "bonavigationlist", "id": "254374.2", "dataflags": "12",
@@ -97,9 +97,9 @@ class Betfred(Bookmaker):
                     odds = functions.convert_to_decimal(horse['currentpriceup'], horse['currentpricedown'])
                 except KeyError:
                     odds = '-'
-                if not today.get_race(race_title):
-                    self.add_new_horse_race(today, race_title.split(', ')[0], race_title.split(', ')[1])
-                if not today.get_race(race_title).get_horse(name):
+                if not self.today.get_race(race_title):
+                    self.add_new_horse_race(self.today, race_title.split(', ')[0], race_title.split(', ')[1])
+                if not self.today.get_race(race_title).get_horse(name):
                     self.add_new_horse(race_title, name, number, odds)
                 else:
                     self.update_horse_odds(race_title, name, odds)
@@ -117,15 +117,7 @@ class Betfred(Bookmaker):
                 self.update_horse_odds(race_title, name, odds)
 
 
-today = HorseRaces()
-betfred = Betfred()
-betfred.get_races_data()
-betfred.get_race_urls()
-betfred.get_indiv_race_data('new')
-print(today.to_string())
-print('done')
-time.sleep(30)
-betfred.get_indiv_race_data('update')
+
 
 
 

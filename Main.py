@@ -1,4 +1,17 @@
-#go through each race on betfair, instantiate HorseRaces, and HorseRace for each race.
-#Instantiate Horse for each horse in each race.
+from Bookmaker import Betfred
+from Objects import Horse, HorseRace, HorseRaces
+import time
 
-#go through each bookmaker in turn updating odds for each horse.
+def main():
+    today = HorseRaces()
+    betfred = Betfred(today)
+    betfred.get_races_data()
+    betfred.get_race_urls()
+    betfred.get_indiv_race_data('new')
+    print(today.to_string())
+    time.sleep(30)
+    betfred.get_indiv_race_data('update')
+
+
+if __name__ == '__main__':
+    main()
