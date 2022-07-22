@@ -1,6 +1,6 @@
 
 
-class Horse:
+class Horse(object):
     def __init__(self, name, number, bookie, odds):
         self.name = name
         self.number = number
@@ -23,8 +23,11 @@ class Horse:
         self.odds.update(dictionary)
         return 1
 
+    def to_string(self):
+        return f'{self.name}, {self.odds}'
 
-class HorseRace:
+
+class HorseRace(object):
     def __init__(self, location, time):
         self.name = f'{location}, {time}'
         self.location = location
@@ -32,6 +35,7 @@ class HorseRace:
         self.horses = {}
         self.bookies = []
         self.urls = {}
+        self.runners = int
 
     def get_name(self):
         return self.name
@@ -74,8 +78,15 @@ class HorseRace:
         self.bookies.append(bookie)
         self.urls[bookie] = url
 
+    def get_odds(self):
+        return {self.get_name(): [{horse.get_name(): horse.get_odds()} for horse in self.get_horses().values()]}
 
-class HorseRaces:
+    def to_string(self):
+        new_line = '\n'
+        return f'{new_line}{self.name}{new_line}{new_line}{new_line.join((horse.to_string() for horse in self.get_horses().values()))}'
+
+
+class HorseRaces(object):
     def __init__(self):
         self.races = {}
 
@@ -91,24 +102,18 @@ class HorseRaces:
         except KeyError:
             return False
 
+    def get_odds(self):
+        return [race.get_odds() for race in self.get_races().values()]
 
-one = Horse('one', 1, 'William Hill', 2.0)
-two = Horse('two', 1, 'William Hill', 2.0)
-three = Horse('three', 1, 'William Hill', 2.0)
+    def get_horse(self, race_name: str, name: str):
+        return self.get_race(race_name).get_horse(name)
 
-kmpton = HorseRace('Kempton', '17:00')
-kempton = HorseRace('Kempton', '17:01')
+    def to_string(self):
+        new_line = '\n'
+        return f'{new_line.join((race.to_string() for race in self.get_races().values()))}'
 
-kempton.add_horses(one, two, three)
 
-today = HorseRaces()
-today.add_race(kempton)
-today.add_race(kmpton)
 
-one.update_odds('Betfred', 3)
-one.update_odds('Betfred', 4)
-
-today.get_race('Kempton, 17:01').get_horse('one').update_odds('Betfred', 1)
 
 
 

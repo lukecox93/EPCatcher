@@ -2,7 +2,7 @@ import requests
 import json
 
 
-class UrlOpener:
+class UrlOpener(object):
     def __init__(self, session: requests.Session):
         self.session = session
 
