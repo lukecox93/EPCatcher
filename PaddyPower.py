@@ -47,6 +47,7 @@ for race in all_races['attachments']['races']:
     date = parser.isoparse(position['startTime']).astimezone(timezone('Europe/London'))
     if datetime.datetime.now(pytz.timezone('UTC')) < date:
         all_race_info.append([position['raceId'], position['venue'], date])
+        print([position['raceId'], position['venue'], date])
 
 race_url = "https://apisds.paddypower.com/sdspp/racing-page/v7"
 

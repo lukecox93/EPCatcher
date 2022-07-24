@@ -79,7 +79,7 @@ class HorseRace(object):
         self.urls[bookie] = url
 
     def get_odds(self):
-        return {self.get_name(): [{horse.get_name(): horse.get_odds()} for horse in self.get_horses().values()]}
+        return [{horse.get_name(): horse.get_odds()} for horse in self.get_horses().values()]
 
     def to_string(self):
         new_line = '\n'

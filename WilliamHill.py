@@ -38,6 +38,7 @@ def get_horse_data(runner_data, data):
         runner = (data['data']['raceCardData']['selections'][horse[2]])
         if runner['priceNum'] != None:
             prices.append([horse[0], horse[1], convert_to_decimal(runner['priceNum'], runner['priceDen'])])
+    print(prices)
     return prices
 
 
@@ -90,10 +91,9 @@ def get_price_data():
             data = open_race_page(ext, s)
             runners = data['data']['raceCardData']['event']['numberOfRunners']
             names = get_names(data)
+            print(names)
             df = pd.DataFrame(data=get_horse_data(names, data), columns=['Name', 'Number', 'William Hill']).\
                 sort_values(by=['William Hill'])
-            #df = pd.DataFrame(data=get_horse_data(names, data), columns=[ext.split('/')[1], 'Number', 'William Hill']).\
-                #sort_values(by=['William Hill'])
             all_race_data.append(df)
         print(all_race_data)
     return all_race_data
