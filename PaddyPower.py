@@ -107,6 +107,7 @@ for identifier in all_race_info:
     horses = []
 
     for race in data['markets']:
+        print(race)
         if data['markets'][race]['marketType'] == 'WIN':
             for runner in data['markets'][race]['runners']:
                 if runner['runnerStatus'] == 'ACTIVE' and 'Unnamed' and 'Favourite' not in runner['runnerName']:

@@ -6,6 +6,7 @@ from dateutil import parser
 import pytz
 from pytz import timezone
 import time
+import string
 
 
 class Bookmaker(object):
@@ -35,6 +36,9 @@ class Bookmaker(object):
 
     def update_horse_odds(self, race_name, name, odds):
         self.today.get_horse(race_name, name).update_odds(self.name, odds)
+
+    def format_horse_name(self, name):
+        return name.translate(str.maketrans('', '', string.punctuation)).title()
 
 
 class Betfred(Bookmaker):
@@ -95,7 +99,7 @@ class Betfred(Bookmaker):
         for horse in json_race_data['Marketgroup']['markets'][0]['selections']:
             if horse['is1stfavourite'] != 'true' and horse['is2ndfavourite'] != 'true' and horse[
                 'idfobolifestate'] != 'NR':
-                name = horse['name']
+                name = self.format_horse_name(horse['name'])
                 number = horse['competitornumber']
                 try:
                     odds = functions.convert_to_decimal(horse['currentpriceup'], horse['currentpricedown'])
@@ -112,7 +116,7 @@ class Betfred(Bookmaker):
         for horse in json_race_data['Marketgroup']['markets'][0]['selections']:
             if horse['is1stfavourite'] != 'true' and horse['is2ndfavourite'] != 'true' and horse[
                 'idfobolifestate'] != 'NR':
-                name = horse['name']
+                name = self.format_horse_name(horse['name'])
                 try:
                     odds = functions.convert_to_decimal(horse['currentpriceup'], horse['currentpricedown'])
                 except KeyError:
@@ -171,7 +175,6 @@ class WilliamHill(Bookmaker):
                                                                                                             title)
 
     def get_indiv_horse_data(self, json_race_data, race_title):
-        print(race_title)
         if json_race_data['data']['raceCardData']['event']['isInPlay']:
             return
         horse_ids = [[horse['title'], horse['runnerNum'], horse['selections'][0]] for horse in
@@ -179,7 +182,7 @@ class WilliamHill(Bookmaker):
         for horse in horse_ids:
             runner = (json_race_data['data']['raceCardData']['selections'][horse[2]])
             if runner['priceNum'] != None:
-                name = horse[0]
+                name = self.format_horse_name(horse[0])
                 number = horse[1]
                 odds = functions.convert_to_decimal(runner['priceNum'], runner['priceDen'])
                 if not self.today.get_race(race_title):
@@ -196,8 +199,7 @@ class WilliamHill(Bookmaker):
         for horse in horse_ids:
             runner = (json_race_data['data']['raceCardData']['selections'][horse[2]])
             if runner['priceNum'] != None:
-                name = horse[0]
-                number = horse[1]
+                name = self.format_horse_name(horse[0])
                 odds = functions.convert_to_decimal(runner['priceNum'], runner['priceDen'])
                 self.update_horse_odds(race_title, name, odds)
 
@@ -275,10 +277,42 @@ class PaddyPower(Bookmaker):
                    "includeResults": "true", "language": "en", "priceHistory": "3", "raceId": extension,
                    "regionCode": "UK"}
                 json_data = WebBrowsing.UrlOpener(session).open_url(self.race_url, query_string, self.headers)
-                print(json_data)
-                title = self.get_race_title(json_data)
+                title = self.get_race_title(json_data, extension)
+                self.get_indiv_horse_data(json_data, title, extension) if new_or_update == 'new' else self.update_data(json_data,
+                                                                                                            title, extension)
 
-    def get_race_title(self, json_data):
-        pass
+    def get_indiv_horse_data(self, json_race_data, title, extension):
+        for race in (json_race_data['markets']):
+            if json_race_data['markets'][race]['marketType'] == 'WIN':
+                for runner in json_race_data['markets'][race]['runners']:
+                    if runner['runnerStatus'] == 'ACTIVE' and 'Unnamed' and 'Favourite' not in runner['runnerName']:
+                        number = runner['sortPriority']
+                        name = self.format_horse_name(runner['runnerName'])
+                        try:
+                            odds = runner['winRunnerOdds']['trueOdds']['decimalOdds']['decimalOdds']
+                        except:
+                            odds = '-'
+                        if not self.today.get_race(title):
+                            self.add_new_horse_race(self.today, title.split(', ')[0], title.split(', ')[1])
+                        if not self.today.get_race(title).get_horse(name):
+                            self.add_new_horse(title, name, number, odds)
+                        else:
+                            self.update_horse_odds(title, name, odds)
 
+    def update_data(self, json_race_data, title):
+        for race in (json_race_data['markets']):
+            if json_race_data['markets'][race]['marketType'] == 'WIN':
+                for runner in json_race_data['markets'][race]['runners']:
+                    if runner['runnerStatus'] == 'ACTIVE' and 'Unnamed' and 'Favourite' not in runner['runnerName']:
+                        name = self.format_horse_name(runner['runnerName'])
+                        try:
+                            odds = runner['winRunnerOdds']['trueOdds']['decimalOdds']['decimalOdds']
+                        except:
+                            odds = '-'
+                        self.update_horse_odds(title, name, odds)
+
+
+    def get_race_title(self, json_data, extension):
+        start_time = parser.isoparse(json_data['races'][extension]['startTime']).astimezone(timezone('Europe/London'))
+        return f"{json_data['races'][extension]['venue']}, {start_time.strftime('%H:%M')}"
 

@@ -3,6 +3,7 @@ from Objects import Horse, HorseRace, HorseRaces
 import time
 
 def main():
+    start_time = time.time()
     today = HorseRaces()
     paddypower = PaddyPower(today)
     paddypower.get_races_data()
@@ -17,6 +18,8 @@ def main():
     betfred.get_race_urls()
     betfred.get_indiv_race_data('new')
     print(today.to_string())
+    print(time.time() - start_time)
+
 
 
 
