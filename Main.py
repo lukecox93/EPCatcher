@@ -1,24 +1,51 @@
-from Bookmaker import Betfred, WilliamHill, PaddyPower
+import Bookmaker
 from Objects import Horse, HorseRace, HorseRaces
 import time
+import concurrent.futures
+from datetime import datetime
+
+def start_day(bookie):
+    bookie.get_races_data()
+    bookie.get_race_urls()
+    bookie.get_indiv_race_data('new')
+
+def update(bookie):
+    bookie.get_indiv_race_data('update')
 
 def main():
-    start_time = time.time()
     today = HorseRaces()
-    paddypower = PaddyPower(today)
-    paddypower.get_races_data()
-    paddypower.get_race_urls()
-    paddypower.get_indiv_race_data('new')
-    williamhill = WilliamHill(today)
-    williamhill.get_races_data()
-    williamhill.get_race_urls()
-    williamhill.get_indiv_race_data('new')
-    betfred = Betfred(today)
-    betfred.get_races_data()
-    betfred.get_race_urls()
-    betfred.get_indiv_race_data('new')
+    bookies = []
+    bookies.append(Bookmaker.PaddyPower(today))
+    bookies.append(Bookmaker.WilliamHill(today))
+    bookies.append(Bookmaker.Betfred(today))
+    bookies.append(Bookmaker.BetVictor(today))
+    bookies.append(Bookmaker.Parimatch(today))
+    bookies.append(Bookmaker.ThirtyTwoRed(today))
+    bookies.append(Bookmaker.Grosvenor(today))
+    bookies.append(Bookmaker.Casumo(today))
+    bookies.append(Bookmaker.LeoVegas(today))
+    bookies.append(Bookmaker.MrGreen(today))
+    bookies.append(Bookmaker.LiveScoreBet(today))
+    bookies.append(Bookmaker.VirginBet(today))
+    bookies.append(Bookmaker.PokerStars(today))
+
+    new_time = time.time()
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(start_day, bookies)
+
+    #for bookie in bookies:
+     #   start_day(bookie)
+
+    today.sort_by_date()
+
     print(today.to_string())
-    print(time.time() - start_time)
+    print(time.time() - new_time)
+
+    update_time = time.time()
+    #with concurrent.futures.ThreadPoolExecutor() as executor:
+        #executor.map(update, bookies)
+    print(time.time() - update_time)
 
 
 

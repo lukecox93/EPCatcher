@@ -1,0 +1,28 @@
+{%extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+    EP Catcher
+</h1>
+
+<div class="'content">
+    <label class="subtitle">Choose an event:</label>
+    <select class="subtitle">
+      <option value="race">Race</option>
+    </select>
+    <table class="box">
+        <tr class="box" style="width:100%">
+            <th style="width:20%">Name</th>
+            <th>Stake</th>
+            <th>Back Odds</th>
+            <th>Place Terms</th>
+            <th>Place Odds</th>
+            <th>Win Lay Odds</th>
+            <th>Place Lay Odds</th>
+            <th>Implied Odds</th>
+            <th>QL</th>
+            <th>EP Profit</th>
+        </tr>
+    </table>
+</div>
+{% endblock %}

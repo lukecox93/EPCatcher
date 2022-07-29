@@ -17,25 +17,30 @@ class Horse(object):
 
     def update_odds(self, bookie, odds):
         self.odds[bookie] = odds
-        return 1
 
     def update_multiple_odds(self, dictionary: dict):
         self.odds.update(dictionary)
-        return 1
+
+    def give_highest_odds(self):
+        return max(self.odds.items(), key=lambda k: k[1])
 
     def to_string(self):
-        return f'{self.name}, {self.odds}'
+        return f'{self.name}: {self.odds}'
 
 
 class HorseRace(object):
     def __init__(self, location, time):
-        self.name = f'{location}, {time}'
+        self.name = f'{location} - {time}'
         self.location = location
         self.time = time
         self.horses = {}
         self.bookies = []
         self.urls = {}
         self.runners = int
+        self.standard_places = 3
+
+    def __lt__(self, other):
+        return self.time < other.time
 
     def get_name(self):
         return self.name
@@ -47,7 +52,7 @@ class HorseRace(object):
         return self.time
 
     def get_horse(self, name: str):
-        return self.horses[name] if name in self.horses else None
+        return self.horses.get(name)
 
     def get_horses(self):
         return self.horses
@@ -59,7 +64,10 @@ class HorseRace(object):
         return self.bookies
 
     def get_url(self, bookie: str):
-        return self.urls[bookie] if bookie in self.urls else None
+        return self.urls.get(bookie)
+
+    def get_places(self):
+        return self.standard_places
 
     def get_urls(self):
         return self.urls if self.urls else None
@@ -90,17 +98,17 @@ class HorseRaces(object):
     def __init__(self):
         self.races = {}
 
+    def sort_by_date(self):
+        self.races = {k: v for k, v in sorted(self.races.items(), key=lambda item: item[1])}
+
     def add_race(self, competition: HorseRace):
         self.races[competition.get_name()] = competition
 
     def get_races(self):
-        return self.races if self.races else None
+        return self.races if self.races else {}
 
     def get_race(self, race_title):
-        try:
-            return self.races[race_title]
-        except KeyError:
-            return False
+        return self.races.get(race_title)
 
     def get_odds(self):
         return [race.get_odds() for race in self.get_races().values()]
@@ -110,7 +118,7 @@ class HorseRaces(object):
 
     def to_string(self):
         new_line = '\n'
-        return f'{new_line.join((race.to_string() for race in self.get_races().values()))}'
+        return f'{new_line.join(race.to_string() for race in self.get_races().values())}'
 
 
 
