@@ -1,10 +1,11 @@
-
+from fractions import Fraction
 
 class Horse(object):
     def __init__(self, name, number, bookie, odds):
         self.name = name
         self.number = number
         self.odds = {bookie: odds}
+        self.place_terms = 1/5
 
     def get_name(self):
         return self.name
@@ -26,6 +27,12 @@ class Horse(object):
 
     def to_string(self):
         return f'{self.name}: {self.odds}'
+
+    def get_place_terms(self):
+        return self.place_terms
+
+    def get_place_terms_as_string(self):
+        return Fraction(self.place_terms).limit_denominator()
 
 
 class HorseRace(object):

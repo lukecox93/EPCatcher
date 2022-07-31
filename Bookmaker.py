@@ -542,8 +542,9 @@ class LiveScoreBet(Bookmaker):
         return json_race_data['currentEvent'][0]['categories'][0]['name']
 
     def get_start_time(self, json_race_data, extension=None):
-        start_time = (time.strptime(json_race_data['currentEvent'][0]['startTime'], '%Y-%m-%d %H:%M:%S'))
-        return time.strftime("%A %d %B, %H:%M", start_time)
+        start_time = f"{json_race_data['currentEvent'][0]['startTime'][:10]}, {json_race_data['currentEvent'][0]['raceHour']}"
+        start_time = time.strptime(start_time, '%Y-%m-%d, %H:%M')
+        return time.strftime('%A %d %B, %H:%M', start_time)
 
 
 class VirginBet(LiveScoreBet):

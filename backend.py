@@ -39,7 +39,6 @@ def main():
 
     today.sort_by_date()
 
-    print(today.to_string())
     print(time.time() - new_time)
 
     update_time = time.time()
@@ -47,12 +46,7 @@ def main():
         #executor.map(update, bookies)
     print(time.time() - update_time)
 
-
-
-
-
-
-
+    return today
 
 if __name__ == '__main__':
     main()

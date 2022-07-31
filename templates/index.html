@@ -1,0 +1,21 @@
+{%extends "base.html" %}
+
+{%block content%}
+<h1 class="title">
+    Extra Place Catcher
+</h1>
+{% if current_user.is_authenticated %}
+<h2 class="subtitle">
+    Click below to run the program, then click above to go to the catcher page
+</h2>
+<a class="button" href="{{ url_for('auth.run') }}">Run</a>
+{% else %}
+<h2 class="subtitle">
+    Click below to sign up!
+</h2>
+<a href="{{ url_for('auth.signup') }}" class="button">
+    Sign Up
+</a>
+
+{% endif %}
+{% endblock %}
