@@ -2,7 +2,6 @@
 
 {% block content %}
 <div class="column is-4 is-offset-4">
-    <h3 class="title">Sign Up</h3>
     <div class="box">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -32,6 +31,9 @@
 
             <button class="button is-block is-info is-large is-fullwidth">Sign Up</button>
         </form>
+    </div>
+    <div class="box">
+        <h2>Already Signed Up? <a href="{{ url_for('auth.login') }}" class="has-text-link">Login</a></h2>
     </div>
 </div>
 {% endblock %}
