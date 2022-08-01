@@ -28,12 +28,15 @@
                     <input class="input is-large" type="password" name="password" placeholder="Password">
                 </div>
             </div>
-
             <button class="button is-block is-info is-large is-fullwidth">Sign Up</button>
         </form>
     </div>
     <div class="box">
-        <h2>Already Signed Up? <a href="{{ url_for('auth.login') }}" class="has-text-link">Login</a></h2>
+        <h2 class="is-large">Already Have An Account?
+            <form action="/login">
+                <button type="submit" class="button is-block is-info is-large is-fullwidth" >Login</button>
+            </form>
+        </h2>
     </div>
 </div>
 {% endblock %}
