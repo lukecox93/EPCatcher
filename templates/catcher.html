@@ -108,22 +108,32 @@
             </tr>
         </tfoot>
         <tbody>
-            {% for horse in today.get_race("Galway - Sunday 31 July, 14:30").get_horses().values() %}
+            {% for race in today.get_races().values() %}
+            {% for horse in race.get_horses().values() %}
             {% set odds = horse.give_highest_odds()[0] %}
             <tr>
                 <td>{{horse.get_name()}}</td>
-                <td><input class="input" type="number" value="10" style="width:50px;"></td>
-                <td>{{ horse.give_highest_odds()[0] }}</td>
+                <td><input id="stake" class="input" type="number" value="10" autocomplete="off" style="width:50px;"></td>
+                <td id="bookmaker">{{ horse.give_highest_odds()[0] }}</td>
                 <td id="back_odds">{{ horse.give_highest_odds()[1] }}</td>
-            <script>
-                document.getElementById("back_odds").value = odds
-            </script>
-                <td>{{ horse.get_place_terms_as_string() }}</td>
+                <td id="place_terms">{{ horse.get_place_terms_as_string() }}</td>
                 <td id="place_odds"></td>
-                <script>
-                    document.getElementById("place_odds").innerHTML = document.getElementById("back_odds").value
-                </script>
+                    <script>
+                    setInterval(function() {
+                        var x = document.getElementById("back_odds").innerHTML;
+                        document.getElementById("place_odds").innerHTML = (x / 5).toFixed(2);
+                    }, 1000);
+                    </script>
+                <td id="exchange_back_odds"></td>
+                    <script>
+                        setInterval(function() {
+                        var back_odds = document.getElementById("back_odds").innerHTML;
+                        var stake = document.getElementById("stake").value;
+                        document.getElementById("exchange_back_odds").innerHTML = (back_odds * stake).toFixed(2);
+                    }, 1000);
+                    </script>
             </tr>
+            {% endfor %}
             {% endfor %}
         </tbody>
     </table>
